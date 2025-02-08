@@ -2,7 +2,7 @@
 
 # Проверка, что передана папка с сайтом
 if [ -z "$1" ]; then
-  echo "Использование: $0 <папка_с_сайтом>"
+  echo "Использование: $0 <папка_с_сайтом> [-ip]"
   exit 1
 fi
 
@@ -19,6 +19,13 @@ if [ ! -d "$SITE_DIR" ]; then
   exit 1
 fi
 
+SITE_ADDRESS=$SITE_NAME
+
+if [[ "$2" == "-ip" ]]; then
+	IP_ADDRESS=$(hostname -I | awk '{print $1}')
+	SITE_ADDRESS=$IP_ADDRESS
+fi
+
 # Перемещение папки с сайтом в /var/www
 echo "Перемещение папки с сайтом в /var/www..."
 sudo mv "$SITE_DIR" "$WEB_ROOT"
@@ -28,7 +35,7 @@ echo "Создание Nginx конфига..."
 sudo bash -c "cat > $NGINX_CONF_DIR/$SITE_NAME <<EOF
 server {
     listen 80;
-    server_name $SITE_NAME;
+    server_name $SITE_ADDRESS;
 
     root $WEB_ROOT;
     index index.html index.htm index.php;
